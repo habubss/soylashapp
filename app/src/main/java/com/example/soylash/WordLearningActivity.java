@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -61,7 +62,6 @@ import android.util.Base64;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-
 public class WordLearningActivity extends AppCompatActivity {
     private DatabaseReference favoritesRef;
     private boolean isFavorite = false;
@@ -76,6 +76,7 @@ public class WordLearningActivity extends AppCompatActivity {
 
     private List<String[]> allWordsData = new ArrayList<>();
     private List<String[]> filteredWords = new ArrayList<>();
+    private List<Integer> shuffledIndices = new ArrayList<>();
     private int currentIndex = 0;
     private boolean isFilterExpanded = false;
     private CheckBox checkAll, checkNouns, checkVerbs, checkAdjectives, checkAdverbs;
@@ -100,8 +101,8 @@ public class WordLearningActivity extends AppCompatActivity {
 
         HashMap<String, Object> favoriteWord = new HashMap<>();
         favoriteWord.put("word", currentWord);
-        favoriteWord.put("translation", filteredWords.get(currentIndex)[3]);
-        favoriteWord.put("partOfSpeech", filteredWords.get(currentIndex)[1]);
+        favoriteWord.put("translation", filteredWords.get(shuffledIndices.get(currentIndex))[3]);
+        favoriteWord.put("partOfSpeech", filteredWords.get(shuffledIndices.get(currentIndex))[1]);
 
         favoritesRef.child(currentWord).setValue(favoriteWord)
                 .addOnCompleteListener(task -> {
@@ -135,15 +136,11 @@ public class WordLearningActivity extends AppCompatActivity {
 
         allWordsData = loadWordsFromJson();
 
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
-
         setupFilter();
         updateFilteredWords();
         updateContent();
         setupNextButton();
 
-        // Инициализация кнопок
         btnSpeak = findViewById(R.id.btnSpeak);
         btnSpeak.setOnClickListener(v -> synthesizeText());
 
@@ -172,16 +169,13 @@ public class WordLearningActivity extends AppCompatActivity {
     }
 
     private void requestAudioPermissions() {
-        // Список необходимых разрешений
         List<String> requiredPermissions = new ArrayList<>();
 
-        // Обязательное разрешение для записи аудио
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
             requiredPermissions.add(Manifest.permission.RECORD_AUDIO);
         }
 
-        // Разрешение на запись в хранилище (только для API < 29)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -189,20 +183,17 @@ public class WordLearningActivity extends AppCompatActivity {
             }
         }
 
-        // Если разрешения уже предоставлены
         if (requiredPermissions.isEmpty()) {
             Log.d(TAG, "Все разрешения уже получены");
             return;
         }
 
-        // Запрашиваем недостающие разрешения
         ActivityCompat.requestPermissions(
                 this,
                 requiredPermissions.toArray(new String[0]),
                 REQUEST_RECORD_AUDIO_PERMISSION
         );
 
-        // Для отладки
         Log.d(TAG, "Запрошены разрешения: " + requiredPermissions);
     }
 
@@ -240,13 +231,11 @@ public class WordLearningActivity extends AppCompatActivity {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
-            // Создаем папку для записи, если ее нет
             File musicDir = new File(getExternalFilesDir(Environment.DIRECTORY_MUSIC), "");
             if (!musicDir.exists()) {
                 musicDir.mkdirs();
             }
 
-            // Генерируем уникальный путь
             currentAudioPath = musicDir.getAbsolutePath() + "/" + UUID.randomUUID().toString() + ".aac";
             mediaRecorder.setOutputFile(currentAudioPath);
 
@@ -254,7 +243,6 @@ public class WordLearningActivity extends AppCompatActivity {
             mediaRecorder.start();
             isRecording = true;
 
-            // Логирование для отладки
             Log.d(TAG, "Начата запись. Путь: " + currentAudioPath);
 
         } catch (IOException e) {
@@ -268,7 +256,6 @@ public class WordLearningActivity extends AppCompatActivity {
         }
     }
 
-    // Вспомогательный метод для сброса MediaRecorder
     private void resetRecorder() {
         if (mediaRecorder != null) {
             mediaRecorder.release();
@@ -283,7 +270,6 @@ public class WordLearningActivity extends AppCompatActivity {
                 mediaRecorder.stop();
             } catch (RuntimeException e) {
                 Log.e(TAG, "Ошибка остановки записи: ", e);
-                // Удаляем невалидный файл
                 new File(currentAudioPath).delete();
                 return;
             } finally {
@@ -321,7 +307,6 @@ public class WordLearningActivity extends AppCompatActivity {
         }
     }
 
-    // Новая логика воспроизведения
     private void setupAudioPlayback() {
         try {
             if (mediaPlayer != null) {
@@ -331,7 +316,7 @@ public class WordLearningActivity extends AppCompatActivity {
 
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(currentAudioPath);
-            mediaPlayer.prepareAsync(); // Используем асинхронную подготовку
+            mediaPlayer.prepareAsync();
 
             mediaPlayer.setOnPreparedListener(mp -> {
                 audioSeekBar.setMax(mediaPlayer.getDuration());
@@ -386,6 +371,7 @@ public class WordLearningActivity extends AppCompatActivity {
             Toast.makeText(this, "Нет текущего слова", Toast.LENGTH_SHORT).show();
             return;
         }
+        Toast.makeText(this, "Проверяется...", Toast.LENGTH_SHORT).show();
 
         File audioFile = new File(currentAudioPath);
         RequestBody audioBody = RequestBody.create(MediaType.parse("audio/aac"), audioFile);
@@ -403,7 +389,6 @@ public class WordLearningActivity extends AppCompatActivity {
                     String errorMessage = "Ошибка сервера: " + response.code();
                     try {
                         if (response.errorBody() != null) {
-                            // Логируем сырой JSON для отладки
                             String rawJson = response.errorBody().string();
                             Log.e(TAG, "Ошибка сервера. Ответ: " + rawJson);
                             errorMessage = "Неверный формат данных";
@@ -436,7 +421,6 @@ public class WordLearningActivity extends AppCompatActivity {
             resultText.setText("✅ Правильное произношение!");
             resultText.setTextColor(ContextCompat.getColor(this, R.color.green));
 
-            // Добавляем само слово зеленым
             TextView correctWordView = new TextView(this);
             correctWordView.setText(currentWord);
             correctWordView.setTextSize(18);
@@ -461,16 +445,14 @@ public class WordLearningActivity extends AppCompatActivity {
                 String word = words.get(i);
                 int accuracyValue = accuracy.get(i);
 
-                // Создаем Spannable для цветного текста
                 SpannableString spannable = new SpannableString(word);
                 int half = word.length() / 2;
 
-                // Определяем цвета
                 int greenColor = ContextCompat.getColor(this, R.color.green);
                 int redColor = ContextCompat.getColor(this, R.color.red);
 
                 switch (accuracyValue) {
-                    case 1: // Первая половина красная, вторая зеленая
+                    case 1:
                         spannable.setSpan(
                                 new ForegroundColorSpan(redColor),
                                 0, half,
@@ -483,7 +465,7 @@ public class WordLearningActivity extends AppCompatActivity {
                         );
                         break;
 
-                    case 2: // Первая половина зеленая, вторая красная
+                    case 2:
                         spannable.setSpan(
                                 new ForegroundColorSpan(greenColor),
                                 0, half,
@@ -496,7 +478,7 @@ public class WordLearningActivity extends AppCompatActivity {
                         );
                         break;
 
-                    case 3: // Все слово красное
+                    case 3:
                         spannable.setSpan(
                                 new ForegroundColorSpan(redColor),
                                 0, word.length(),
@@ -504,7 +486,7 @@ public class WordLearningActivity extends AppCompatActivity {
                         );
                         break;
 
-                    default: // Неизвестный статус (серый)
+                    default:
                         spannable.setSpan(
                                 new ForegroundColorSpan(Color.GRAY),
                                 0, word.length(),
@@ -512,7 +494,6 @@ public class WordLearningActivity extends AppCompatActivity {
                         );
                 }
 
-                // Создаем TextView и добавляем в layout
                 TextView wordView = new TextView(this);
                 wordView.setText(spannable);
                 wordView.setTextSize(18);
@@ -556,8 +537,7 @@ public class WordLearningActivity extends AppCompatActivity {
             String json = new String(buffer, StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Type wordListType = new TypeToken<List<WordItem>>() {
-            }.getType();
+            Type wordListType = new TypeToken<List<WordItem>>() {}.getType();
             List<WordItem> words = gson.fromJson(json, wordListType);
 
             for (WordItem item : words) {
@@ -591,6 +571,11 @@ public class WordLearningActivity extends AppCompatActivity {
         findViewById(R.id.nextButton).setOnClickListener(v -> {
             if (!filteredWords.isEmpty()) {
                 currentIndex = (currentIndex + 1) % filteredWords.size();
+
+                if (currentIndex == 0) {
+                    Collections.shuffle(shuffledIndices);
+                }
+
                 updateContent();
             } else {
                 Toast.makeText(this, "Нет слов по выбранным фильтрам", Toast.LENGTH_SHORT).show();
@@ -654,6 +639,7 @@ public class WordLearningActivity extends AppCompatActivity {
 
     private void updateFilteredWords() {
         filteredWords.clear();
+        shuffledIndices.clear();
 
         if (checkAll.isChecked()) {
             filteredWords.addAll(allWordsData);
@@ -669,6 +655,11 @@ public class WordLearningActivity extends AppCompatActivity {
             }
         }
 
+        for (int i = 0; i < filteredWords.size(); i++) {
+            shuffledIndices.add(i);
+        }
+        Collections.shuffle(shuffledIndices);
+
         currentIndex = 0;
         updateContent();
 
@@ -679,11 +670,12 @@ public class WordLearningActivity extends AppCompatActivity {
 
     private void updateContent() {
         try {
-            if (!filteredWords.isEmpty()) {
-                String[] wordData = filteredWords.get(currentIndex);
-                this.currentWord = wordData[0]; // Сохраняем текущее слово
+            if (!filteredWords.isEmpty() && !shuffledIndices.isEmpty()) {
+                int realIndex = shuffledIndices.get(currentIndex);
+                String[] wordData = filteredWords.get(realIndex);
+                this.currentWord = wordData[0];
                 ((TextView) findViewById(R.id.wordTextView)).setText(wordData[0]);
-                ((TextView) findViewById(R.id.partOfSpeechTextView)).setText(wordData[1]);
+//                ((TextView) findViewById(R.id.partOfSpeechTextView)).setText(wordData[1]);
                 ((TextView) findViewById(R.id.categoryTextView)).setText(wordData[2]);
                 ((TextView) findViewById(R.id.translationTextView)).setText(wordData[3]);
                 checkIfFavorite();
@@ -702,7 +694,6 @@ public class WordLearningActivity extends AppCompatActivity {
                 updateFavoriteButton();
             }
         });
-
     }
 
     private void synthesizeText() {
@@ -711,11 +702,10 @@ public class WordLearningActivity extends AppCompatActivity {
             return;
         }
 
-        String text = filteredWords.get(currentIndex)[0];
+        String text = filteredWords.get(shuffledIndices.get(currentIndex))[0];
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("text", text);
 
-        // Логирование запроса
         Log.d(TAG, "Отправка запроса на синтез: " + text);
 
         Toast.makeText(this, "Синтезируется речь...", Toast.LENGTH_SHORT).show();
@@ -726,14 +716,10 @@ public class WordLearningActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
                         try {
-                            // Логирование успешного ответа
                             Log.d(TAG, "Ответ получен. Размер данных: " + response.body().contentLength());
-
-                            // Воспроизведение аудио
                             playAudio(response.body().byteStream());
                             Toast.makeText(WordLearningActivity.this,
                                     "Озвучка успешна", Toast.LENGTH_SHORT).show();
-
                         } catch (IOException e) {
                             Log.e(TAG, "Ошибка чтения аудиопотока: ", e);
                             Toast.makeText(WordLearningActivity.this,
@@ -745,7 +731,6 @@ public class WordLearningActivity extends AppCompatActivity {
                                 "Сервер не вернул аудио", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    // Логирование HTTP-ошибок
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Нет деталей";
                         Log.e(TAG, "Ошибка сервера: " + response.code() + "\n" + errorBody);
@@ -759,7 +744,6 @@ public class WordLearningActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Логирование ошибок сети
                 Log.e(TAG, "Ошибка сети: " + Log.getStackTraceString(t));
                 Toast.makeText(WordLearningActivity.this,
                         "Ошибка подключения: " + t.getMessage(), Toast.LENGTH_LONG).show();
@@ -808,5 +792,4 @@ public class WordLearningActivity extends AppCompatActivity {
         String type;
         String translation;
     }
-
 }

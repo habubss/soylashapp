@@ -89,7 +89,11 @@
                 android:value=".MainActivity" />
         </activity>
 
-
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="Login"
+        android:theme="@style/AppTheme.NoActionBar" />
 
 
         <!-- Сервис для аудирования (если будет нужен) -->

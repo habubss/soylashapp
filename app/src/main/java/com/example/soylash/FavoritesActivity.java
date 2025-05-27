@@ -2,6 +2,7 @@ package com.example.soylash;
 
 import static androidx.fragment.app.FragmentManager.TAG;
 
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,9 +46,6 @@ public class FavoritesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
-
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
 
         favoritesContainer = findViewById(R.id.favoritesContainer);
 
@@ -145,6 +143,7 @@ public class FavoritesActivity extends AppCompatActivity {
         Toast.makeText(this, "Синтезируется речь...", Toast.LENGTH_SHORT).show();
 
         ApiClient.getApi().synthesizeText(jsonObject).enqueue(new Callback<ResponseBody>() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {

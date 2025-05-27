@@ -1,18 +1,14 @@
 {
   "project_info": {
     "project_number": "144838979374",
+    "firebase_url": "https://soylash-69594-default-rtdb.firebaseio.com",
     "project_id": "soylash-69594",
     "storage_bucket": "soylash-69594.firebasestorage.app"
-    "project_number": "395420245892",
-    "firebase_url": "https://words-ccb84-default-rtdb.firebaseio.com",
-    "project_id": "words-ccb84",
-    "storage_bucket": "words-ccb84.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:144838979374:android:9243cfd819fdf56fbf14bf",
-        "mobilesdk_app_id": "1:395420245892:android:423922710db92b76fbc7d1",
         "android_client_info": {
           "package_name": "com.example.soylash"
         }
@@ -21,7 +17,6 @@
       "api_key": [
         {
           "current_key": "AIzaSyDo8HXRLtPgf_a3yhjcLfeRpySAzwvdi70"
-          "current_key": "AIzaSyD14ftc5dQR0jJlB58ob3FMXTBOtYfNvqA"
         }
       ],
       "services": {

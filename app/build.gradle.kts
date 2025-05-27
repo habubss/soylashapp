@@ -6,6 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.soylash"
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.soylash"
@@ -13,8 +14,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -29,6 +28,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildFeatures{
+        viewBinding = true
     }
     kotlinOptions {
         jvmTarget = "1.8"

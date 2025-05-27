@@ -50,13 +50,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- Back button -->
-    <ImageButton
-        android:id="@+id/backButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="start|top"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_arrow_back" />
 </FrameLayout>
