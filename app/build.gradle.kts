@@ -6,7 +6,6 @@ plugins {
 
 android {
     namespace = "com.example.soylash"
-    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.soylash"
@@ -62,7 +61,6 @@ dependencies {
     implementation ("com.google.firebase:firebase-auth")
 
     implementation("com.google.android.flexbox:flexbox:3.0.0")
-
 
     //classpath("com.google.gms:google-services:4.3.15")
 }

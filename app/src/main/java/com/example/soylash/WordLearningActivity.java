@@ -25,11 +25,13 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,6 +44,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,7 +58,13 @@ import retrofit2.Response;
 
 import android.util.Base64;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+
 public class WordLearningActivity extends AppCompatActivity {
+    private DatabaseReference favoritesRef;
+    private boolean isFavorite = false;
     private static final String TAG = "WordLearningActivity";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static final String[][] CATEGORY_MAPPING = {
@@ -81,6 +90,43 @@ public class WordLearningActivity extends AppCompatActivity {
     private SeekBar audioSeekBar;
     private Handler seekBarHandler = new Handler();
     private Runnable updateSeekBar;
+
+    private void toggleFavorite() {
+        if (currentWord == null) return;
+
+        if (isFavorite) {
+            return; // Already favorited, button should be disabled
+        }
+
+        HashMap<String, Object> favoriteWord = new HashMap<>();
+        favoriteWord.put("word", currentWord);
+        favoriteWord.put("translation", filteredWords.get(currentIndex)[3]);
+        favoriteWord.put("partOfSpeech", filteredWords.get(currentIndex)[1]);
+
+        favoritesRef.child(currentWord).setValue(favoriteWord)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        isFavorite = true;
+                        updateFavoriteButton();
+                        Toast.makeText(this, "Добавлено в избранное", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Ошибка добавления", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateFavoriteButton() {
+        Button btn = findViewById(R.id.btnAddToFavorites);
+        if (isFavorite) {
+            btn.setText("Добавлено в избранное");
+            btn.setEnabled(false);
+            btn.setBackgroundColor(getResources().getColor(R.color.gray));
+        } else {
+            btn.setText("Добавить в избранное");
+            btn.setEnabled(true);
+            btn.setBackgroundColor(getResources().getColor(R.color.green));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +161,14 @@ public class WordLearningActivity extends AppCompatActivity {
         btnPlayRecording.setOnClickListener(v -> togglePlayback());
 
         requestAudioPermissions();
+
+        favoritesRef = FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("Favorites");
+
+        Button btnAddToFavorites = findViewById(R.id.btnAddToFavorites);
+        btnAddToFavorites.setOnClickListener(v -> toggleFavorite());
     }
 
     private void requestAudioPermissions() {
@@ -222,6 +276,7 @@ public class WordLearningActivity extends AppCompatActivity {
         }
         isRecording = false;
     }
+
     private void stopRecording() {
         if (mediaRecorder != null) {
             try {
@@ -489,6 +544,7 @@ public class WordLearningActivity extends AppCompatActivity {
             Log.e(TAG, "Ошибка воспроизведения feedback: ", e);
         }
     }
+
     private List<String[]> loadWordsFromJson() {
         List<String[]> result = new ArrayList<>();
         try {
@@ -500,7 +556,8 @@ public class WordLearningActivity extends AppCompatActivity {
             String json = new String(buffer, StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Type wordListType = new TypeToken<List<WordItem>>(){}.getType();
+            Type wordListType = new TypeToken<List<WordItem>>() {
+            }.getType();
             List<WordItem> words = gson.fromJson(json, wordListType);
 
             for (WordItem item : words) {
@@ -629,10 +686,23 @@ public class WordLearningActivity extends AppCompatActivity {
                 ((TextView) findViewById(R.id.partOfSpeechTextView)).setText(wordData[1]);
                 ((TextView) findViewById(R.id.categoryTextView)).setText(wordData[2]);
                 ((TextView) findViewById(R.id.translationTextView)).setText(wordData[3]);
+                checkIfFavorite();
             }
         } catch (Exception e) {
             Toast.makeText(this, "Ошибка отображения", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void checkIfFavorite() {
+        if (currentWord == null) return;
+
+        favoritesRef.child(currentWord).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                isFavorite = task.getResult().exists();
+                updateFavoriteButton();
+            }
+        });
+
     }
 
     private void synthesizeText() {

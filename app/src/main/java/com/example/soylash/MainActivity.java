@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-//import com.google.firebase.FirebaseApp;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -17,24 +19,38 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Инициализация Firebase перед setContentView
-        //FirebaseApp.initializeApp(this);
-
         setContentView(R.layout.activity_main);
+
+        // Check if user is logged in
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
+
+        // Add logout button functionality
+        ImageButton logoutButton = findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        });
 
         LinearLayout wordLearningLayout = findViewById(R.id.layout_word_learning);
         LinearLayout translatorLayout = findViewById(R.id.layout_translator);
         LinearLayout guessTranslationLayout = findViewById(R.id.layout_guess_translation);
         LinearLayout listeningLayout = findViewById(R.id.layout_listening);
+        LinearLayout favoritesCard = findViewById(R.id.layout_favorites);
 
 
         listeningLayout.setOnClickListener(new View.OnClickListener() {
+        translatorLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Нажатие на 'Угадать перевод' зафиксировано");
+                Log.i(TAG, "Нажатие на 'Переводчик' зафиксировано");
                 try {
                     startActivity(new Intent(MainActivity.this, ListeningActivity.class));
+                    startActivity(new Intent(MainActivity.this, TranslaterActivity.class));
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } catch (Exception e) {
                     Log.e(TAG, "Ошибка перехода: " + e.getMessage());
@@ -44,11 +60,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         guessTranslationLayout.setOnClickListener(new View.OnClickListener() {
+        wordLearningLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Нажатие на 'Угадать перевод' зафиксировано");
+                Log.i(TAG, "Нажатие на 'Изучение слов' зафиксировано");
                 try {
                     startActivity(new Intent(MainActivity.this, GuessTranslationActivity.class));
+                    startActivity(new Intent(MainActivity.this, WordLearningActivity.class));
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } catch (Exception e) {
                     Log.e(TAG, "Ошибка перехода: " + e.getMessage());
@@ -58,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         translatorLayout.setOnClickListener(new View.OnClickListener() {
+        favoritesCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Нажатие на 'Переводчик' зафиксировано");
+                Log.i(TAG, "Нажатие на 'Избранное' зафиксировано");
                 try {
                     startActivity(new Intent(MainActivity.this, TranslaterActivity.class));
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -77,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Нажатие на 'Изучение слов' зафиксировано");
                 try {
                     startActivity(new Intent(MainActivity.this, WordLearningActivity.class));
+                    startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 } catch (Exception e) {
                     Log.e(TAG, "Ошибка перехода: " + e.getMessage());
