@@ -25,6 +25,37 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout wordLearningLayout = findViewById(R.id.layout_word_learning);
         LinearLayout translatorLayout = findViewById(R.id.layout_translator);
+        LinearLayout guessTranslationLayout = findViewById(R.id.layout_guess_translation);
+        LinearLayout listeningLayout = findViewById(R.id.layout_listening);
+
+
+        listeningLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Нажатие на 'Угадать перевод' зафиксировано");
+                try {
+                    startActivity(new Intent(MainActivity.this, ListeningActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                } catch (Exception e) {
+                    Log.e(TAG, "Ошибка перехода: " + e.getMessage());
+                    showError("Не удалось открыть раздел");
+                }
+            }
+        });
+
+        guessTranslationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Нажатие на 'Угадать перевод' зафиксировано");
+                try {
+                    startActivity(new Intent(MainActivity.this, GuessTranslationActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                } catch (Exception e) {
+                    Log.e(TAG, "Ошибка перехода: " + e.getMessage());
+                    showError("Не удалось открыть раздел");
+                }
+            }
+        });
 
         translatorLayout.setOnClickListener(new View.OnClickListener() {
             @Override
