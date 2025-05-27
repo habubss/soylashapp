@@ -681,7 +681,7 @@ public class WordLearningActivity extends AppCompatActivity {
                 checkIfFavorite();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "Ошибка отображения", Toast.LENGTH_SHORT).show();
+
         }
     }
 
