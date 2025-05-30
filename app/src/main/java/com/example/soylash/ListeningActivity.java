@@ -139,40 +139,62 @@ public class ListeningActivity extends AppCompatActivity {
 
         WordPair currentWord = words.get(currentQuestion);
         progressText.setText(String.format("Вопрос %d/%d", currentQuestion + 1, TOTAL_QUESTIONS));
-        generateOptions(currentWord);
+
+        // Используем улучшенный метод генерации опций
+        List<String> options = generateOptions(currentWord);
+        setupOptions(options, currentWord.getTranslation());
     }
 
-    private void generateOptions(WordPair correct) {
+    // ЗАМЕНЕННЫЙ МЕТОД - гарантирует уникальные варианты
+    private List<String> generateOptions(WordPair correct) {
         List<String> options = new ArrayList<>();
         options.add(correct.getTranslation()); // Правильный ответ
 
         List<WordPair> tempList = new ArrayList<>(words);
-        tempList.remove(correct); // Удаляем правильный ответ
-        Collections.shuffle(tempList);
+        tempList.remove(correct); // Удаляем текущее слово из вариантов
 
+        // 1. Собираем уникальные переводы исключая текущий
         Set<String> uniqueTranslations = new HashSet<>();
-        // Собираем уникальные переводы (исключая правильный)
         for (WordPair pair : tempList) {
             if (!pair.getTranslation().equals(correct.getTranslation())) {
                 uniqueTranslations.add(pair.getTranslation());
             }
         }
 
-        // Добавляем уникальные варианты
-        List<String> uniqueList = new ArrayList<>(uniqueTranslations);
-        while (options.size() < 4 && !uniqueList.isEmpty()) {
-            options.add(uniqueList.remove(0));
-        }
+        // 2. Выбираем 3 уникальных варианта
+        List<String> uniqueOptions = new ArrayList<>(uniqueTranslations);
+        Collections.shuffle(uniqueOptions);
 
-        // Добираем случайными из общего списка (допускаем повторы)
+        // 3. Если уникальных недостаточно - дополняем случайными
         Random random = new Random();
         while (options.size() < 4) {
-            WordPair randomWord = words.get(random.nextInt(words.size()));
-            options.add(randomWord.getTranslation());
+            if (!uniqueOptions.isEmpty()) {
+                options.add(uniqueOptions.remove(0));
+            } else {
+                // 4. Механизм "умного" дублирования
+                WordPair randomPair = tempList.get(random.nextInt(tempList.size()));
+                if (!options.contains(randomPair.getTranslation())) {
+                    options.add(randomPair.getTranslation());
+                }
+            }
         }
 
-        Collections.shuffle(options);
-        setupOptions(options.subList(0, 4), correct.getTranslation());
+        // 5. Фильтр против повторов в рамках одного вопроса
+        Set<String> used = new HashSet<>();
+        List<String> finalOptions = new ArrayList<>();
+        for (String opt : options) {
+            if (used.add(opt)) {
+                finalOptions.add(opt);
+            }
+        }
+
+        // 6. Гарантия 4 уникальных вариантов
+        while (finalOptions.size() < 4) {
+            finalOptions.add("Нет варианта");
+        }
+
+        Collections.shuffle(finalOptions);
+        return finalOptions.subList(0, 4);
     }
 
     private void setupOptions(List<String> options, String correctAnswer) {
