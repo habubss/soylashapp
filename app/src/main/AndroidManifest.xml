@@ -56,6 +56,16 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <activity
+            android:name=".SearchActivity"
+            android:label="Поиск слов"
+            android:parentActivityName=".MainActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <!-- Активность угадай перевод -->
         <activity
             android:name=".GuessTranslationActivity"

@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PronunciationApiClient {
     // Используйте IP вашего сервера
-    private static final String BASE_URL = "http://192.168.43.29:5001/";
+    private static final String BASE_URL = "http://192.168.1.53:5001/";
     private static PronunciationApi instance;
 
     public static PronunciationApi getApi() {

@@ -41,6 +41,19 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout guessTranslationLayout = findViewById(R.id.layout_guess_translation);
         LinearLayout listeningLayout = findViewById(R.id.layout_listening);
         LinearLayout favorite = findViewById(R.id.layout_favorites);
+        LinearLayout dictionarySearchLayout = findViewById(R.id.layout_dictionary_search);
+
+
+        dictionarySearchLayout.setOnClickListener(v -> {
+            Log.i(TAG, "Нажатие на 'Поиск слов' зафиксировано");
+            try {
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            } catch (Exception e) {
+                Log.e(TAG, "Ошибка перехода: " + e.getMessage());
+                showError("Не удалось открыть раздел");
+            }
+        });
 
         favorite.setOnClickListener(new View.OnClickListener() {
             @Override
