@@ -150,8 +150,8 @@ public class FavoritesActivity extends AppCompatActivity {
                     if (response.body() != null) {
                         try {
                             playAudio(response.body().byteStream());
-                            Toast.makeText(FavoritesActivity.this,
-                                    "Озвучка успешна", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(FavoritesActivity.this,
+//                                    "Озвучка успешна", Toast.LENGTH_SHORT).show();
                         } catch (IOException e) {
                             Log.e(TAG, "Ошибка чтения аудиопотока: ", e);
                             Toast.makeText(FavoritesActivity.this,

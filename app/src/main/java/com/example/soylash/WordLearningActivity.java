@@ -372,6 +372,12 @@ public class WordLearningActivity extends AppCompatActivity {
             Toast.makeText(this, "Нет текущего слова", Toast.LENGTH_SHORT).show();
             return;
         }
+        LinearLayout resultContainer = findViewById(R.id.resultContainer);
+        resultContainer.setVisibility(View.GONE);
+
+        LinearLayout feedbackAudioContainer = findViewById(R.id.feedbackAudioContainer);
+        feedbackAudioContainer.setVisibility(View.GONE);
+
         Toast.makeText(this, "Проверяется...", Toast.LENGTH_SHORT).show();
 
         File audioFile = new File(currentAudioPath);
@@ -807,8 +813,8 @@ public class WordLearningActivity extends AppCompatActivity {
                         try {
                             Log.d(TAG, "Ответ получен. Размер данных: " + response.body().contentLength());
                             playAudio(response.body().byteStream());
-                            Toast.makeText(WordLearningActivity.this,
-                                    "Озвучка успешна", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(WordLearningActivity.this,
+//                                    "Озвучка успешна", Toast.LENGTH_SHORT).show();
                         } catch (IOException e) {
                             Log.e(TAG, "Ошибка чтения аудиопотока: ", e);
                             Toast.makeText(WordLearningActivity.this,
