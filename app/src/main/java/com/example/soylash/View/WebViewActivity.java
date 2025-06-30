@@ -1,6 +1,8 @@
-package com.example.soylash;
+package com.example.soylash.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Message;
 import android.webkit.WebChromeClient;
@@ -9,6 +11,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.example.soylash.R;
+
 public class WebViewActivity extends AppCompatActivity {
     private WebView webView;
 
@@ -16,7 +20,7 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         webView = findViewById(R.id.webView);
         setupWebView();
 

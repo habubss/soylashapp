@@ -1,4 +1,4 @@
-package com.example.soylash;
+package com.example.soylash.Controller;
 
 import android.app.Service;
 import android.content.Intent;

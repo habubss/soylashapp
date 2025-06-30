@@ -1,4 +1,4 @@
-package com.example.soylash;
+package com.example.soylash.Controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;

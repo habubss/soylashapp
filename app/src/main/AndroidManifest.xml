@@ -16,7 +16,7 @@
 
         <!-- Главная активность -->
         <activity
-            android:name=".MainActivity"
+            android:name=".View.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -28,82 +28,82 @@
 
         <!-- Активность изучения слов -->
         <activity
-        android:name=".WordLearningActivity"
+        android:name=".View.WordLearningActivity"
         android:label="Изучение слов"
         android:exported="false"
         android:theme="@style/AppTheme.NoActionBar"/>
 
         <!-- Активность избранного -->
         <activity
-            android:name=".FavoritesActivity"
+            android:name=".View.FavoritesActivity"
             android:exported="false"
             android:label="@string/title_favorites"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".View.MainActivity" />
         </activity>
 
         <!-- Активность переводчика -->
         <activity
-            android:name=".TranslaterActivity"
+            android:name=".View.TranslaterActivity"
             android:exported="false"
             android:label="@string/title_translater"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".View.MainActivity" />
         </activity>
 
         <activity
-            android:name=".SearchActivity"
+            android:name=".View.SearchActivity"
             android:label="Поиск слов"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".View.MainActivity"
             android:exported="false">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".View.MainActivity" />
         </activity>
 
         <!-- Активность угадай перевод -->
         <activity
-            android:name=".GuessTranslationActivity"
+            android:name=".View.GuessTranslationActivity"
             android:exported="false"
             android:label="@string/title_guess_translation"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".View.MainActivity" />
         </activity>
 
         <!-- Активность аудирования -->
         <activity
-            android:name=".ListeningActivity"
+            android:name=".View.ListeningActivity"
             android:exported="false"
             android:label="@string/title_listening"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".View.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".View.MainActivity" />
         </activity>
 
         <!-- Активность логина -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".View.LoginActivity"
             android:exported="true"
             android:label="Login"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Активность регистрации -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".View.RegisterActivity"
             android:exported="true"
             android:label="Register"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- Активность вебвью -->
-        <activity android:name=".WebViewActivity" />
+        <activity android:name=".View.WebViewActivity" />
 
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>

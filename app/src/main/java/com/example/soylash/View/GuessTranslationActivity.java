@@ -1,8 +1,9 @@
-package com.example.soylash;
+package com.example.soylash.View;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,11 +14,15 @@ import android.widget.GridLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import com.example.soylash.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -50,6 +55,7 @@ public class GuessTranslationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guess_translation);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
 
         initializeUI();
@@ -82,7 +88,8 @@ public class GuessTranslationActivity extends AppCompatActivity {
             try {
                 AssetManager assetManager = getAssets();
                 InputStream inputStream = assetManager.open("tatar_words.json");
-                Type listType = new TypeToken<ArrayList<WordPair>>(){}.getType();
+                Type listType = new TypeToken<ArrayList<WordPair>>() {
+                }.getType();
                 words = new Gson().fromJson(new InputStreamReader(inputStream), listType);
                 inputStream.close();
                 return !words.isEmpty();
@@ -211,11 +218,28 @@ public class GuessTranslationActivity extends AppCompatActivity {
             score++;
         } else {
             button.setBackgroundColor(getColor(R.color.red));
+            highlightCorrectAnswer();
         }
 
         disableAllOptions();
         nextButton.setVisibility(View.VISIBLE);
         nextButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+    }
+
+    private void highlightCorrectAnswer() {
+        WordPair currentWord = words.get(currentQuestion);
+        String correctAnswer = currentWord.getTranslation();
+
+        for (int i = 0; i < optionsGrid.getChildCount(); i++) {
+            View child = optionsGrid.getChildAt(i);
+            if (child instanceof MaterialButton) {
+                MaterialButton optionButton = (MaterialButton) child;
+                if (optionButton.getText().toString().equals(correctAnswer)) {
+                    optionButton.setBackgroundColor(getColor(R.color.green));
+                    break;
+                }
+            }
+        }
     }
 
     private void showNextQuestionWithAnimation() {
@@ -289,7 +313,12 @@ public class GuessTranslationActivity extends AppCompatActivity {
             this.translation = translation;
         }
 
-        public String getWord() { return word; }
-        public String getTranslation() { return translation; }
+        public String getWord() {
+            return word;
+        }
+
+        public String getTranslation() {
+            return translation;
+        }
     }
 }

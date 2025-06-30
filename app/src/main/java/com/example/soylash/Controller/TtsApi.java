@@ -1,4 +1,4 @@
-package com.example.soylash;
+package com.example.soylash.Controller;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

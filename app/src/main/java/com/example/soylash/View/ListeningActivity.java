@@ -1,7 +1,8 @@
-package com.example.soylash;
+package com.example.soylash.View;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -17,6 +18,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+
+import com.example.soylash.Controller.ApiClient;
+import com.example.soylash.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -38,7 +42,6 @@ import java.util.Set;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ListeningActivity extends AppCompatActivity {
 
@@ -63,6 +66,7 @@ public class ListeningActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listening);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
 
         initializeUI();
@@ -96,7 +100,8 @@ public class ListeningActivity extends AppCompatActivity {
             try {
                 AssetManager assetManager = getAssets();
                 InputStream inputStream = assetManager.open("tatar_words.json");
-                Type listType = new TypeToken<ArrayList<WordPair>>(){}.getType();
+                Type listType = new TypeToken<ArrayList<WordPair>>() {
+                }.getType();
                 words = new Gson().fromJson(new InputStreamReader(inputStream), listType);
                 inputStream.close();
                 return !words.isEmpty();
@@ -224,11 +229,28 @@ public class ListeningActivity extends AppCompatActivity {
             score++;
         } else {
             button.setBackgroundColor(getColor(R.color.red));
+            highlightCorrectAnswer();
         }
 
         disableAllOptions();
         nextButton.setVisibility(View.VISIBLE);
         nextButton.startAnimation(AnimationUtils.loadAnimation(this, R.anim.bounce));
+    }
+
+    private void highlightCorrectAnswer() {
+        WordPair currentWord = words.get(currentQuestion);
+        String correctAnswer = currentWord.getTranslation();
+
+        for (int i = 0; i < optionsGrid.getChildCount(); i++) {
+            View child = optionsGrid.getChildAt(i);
+            if (child instanceof MaterialButton) {
+                MaterialButton optionButton = (MaterialButton) child;
+                if (optionButton.getText().toString().equals(correctAnswer)) {
+                    optionButton.setBackgroundColor(getColor(R.color.green));
+                    break;
+                }
+            }
+        }
     }
 
     private void playCurrentWord() {
@@ -364,7 +386,12 @@ public class ListeningActivity extends AppCompatActivity {
             this.translation = translation;
         }
 
-        public String getWord() { return word; }
-        public String getTranslation() { return translation; }
+        public String getWord() {
+            return word;
+        }
+
+        public String getTranslation() {
+            return translation;
+        }
     }
 }

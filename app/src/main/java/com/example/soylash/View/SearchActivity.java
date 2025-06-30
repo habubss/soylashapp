@@ -1,8 +1,9 @@
-package com.example.soylash;
+package com.example.soylash.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.soylash.R;
+import com.example.soylash.WordDefinition;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -36,10 +39,9 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         searchInput = findViewById(R.id.search_input);
         ImageButton searchButton = findViewById(R.id.search_button);
-        ImageButton backButton = findViewById(R.id.back_button);
         resultsContainer = findViewById(R.id.results_container);
 
         loadDictionaryFromAssets();
@@ -47,7 +49,6 @@ public class SearchActivity extends AppCompatActivity {
         showInitialWords();
 
         searchButton.setOnClickListener(v -> performSearch());
-        backButton.setOnClickListener(v -> finish());
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
